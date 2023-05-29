@@ -1,0 +1,19 @@
+#Creating empty RRD and Empty data frame using Schema
+from pyspark.sql import *
+from pyspark.sql.functions import *
+#creating emptyRRD
+spark = SparkSession.builder.master("local").appName("mytest").getOrCreate()
+empRD = spark.sparkContext.emptyRDD()
+print(empRD)
+#creatin empty schema
+from pyspark.sql.types import StructType,StructField,StringType
+
+
+schema = StructType([ 
+    StructField('Firstname',StringType(),True),
+    StructField('Firstname',StringType(),True),
+    StructField('firstname',StringType(),True),    
+  ])
+
+dataframe = spark.createDataFrame(empRD,schema)
+dataframe.printSchema()
