@@ -1,0 +1,40 @@
+apiVersion: sparkoperator.k8s.io/v1beta2
+kind: SparkApplication
+metadata:
+  name: pyspark-pi
+  namespace: dev-namespace  # Replace with your OpenShift project/namespace
+spec:
+  type: Python
+  mode: cluster
+  image: image-registry.openshift-image-registry.svc:5000/dev-namespace/spark-py:latest  # Replace with your custom image
+  imagePullPolicy: Always
+  mainApplicationFile: "local:///opt/spark/scripts/pi.py"
+  sparkVersion: "3.1.1"
+  restartPolicy:
+    type: Never
+  driver:
+    cores: 1
+    memory: "1g"
+    coreLimit: "1200m"
+    serviceAccount: spark-sa  # Must exist and have `anyuid` SCC
+    env:
+      - name: PYSPARK_PYTHON
+        value: python3
+    volumeMounts:
+      - name: pyspark-script-vol
+        mountPath: /opt/spark/scripts
+  executor:
+    cores: 1
+    instances: 2
+    memory: "1g"
+    coreLimit: "1200m"
+    env:
+      - name: PYSPARK_PYTHON
+        value: python3
+    volumeMounts:
+      - name: pyspark-script-vol
+        mountPath: /opt/spark/scripts
+  volumes:
+    - name: pyspark-script-vol
+      configMap:
+        name: pyspark-pi-script  # Created from the Python file
