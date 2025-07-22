@@ -1,0 +1,45 @@
+# spark-master-deployment.yaml
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: spark-master
+  namespace: dev-spark
+spec:
+  replicas: 1
+  selector:
+    matchLabels:
+      app: spark
+      role: master
+  template:
+    metadata:
+      labels:
+        app: spark
+        role: master
+    spec:
+      containers:
+        - name: spark-master
+          image: bitnami/spark:latest
+          env:
+            - name: SPARK_MODE
+              value: master
+          ports:
+            - containerPort: 7077  # Spark master port
+            - containerPort: 8080  # Web UI
+---
+apiVersion: v1
+kind: Service
+metadata:
+  name: spark-master
+  namespace: dev-spark
+spec:
+  selector:
+    app: spark
+    role: master
+  ports:
+    - protocol: TCP
+      port: 7077
+      targetPort: 7077
+    - protocol: TCP
+      port: 8080
+      targetPort: 8080
+  type: ClusterIP
